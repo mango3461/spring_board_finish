@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 1~4번 라인은 xml 스키마 설정으로 굳이 외울 필요 없음. -->
+
+<mapper namespace="org.ict.mapper.BoardMapper">
+<!-- mapper 태그 내의 namespace 속성에 연결할 인터페이스 이름을
+적어주면, 해당 인터페이스 내부의 메서드를 여기에 구현할 수 있음 -->
+
+	<select id="getList" 
+			resultType="org.ict.domain.BoardVO">
+	<!-- select구문을 저장할 때는 select 태그를 씁니다.
+	속성 설명 : 
+	id는 연결할 메서드 이름, 
+	resultType은 실행 결과로 리턴될 타입을 적습니다.-->		
+		SELECT * FROM ictboard WHERE bno > 0
+	</select>
+	
+	<insert id="insert">
+	<!-- 마이바티스에서는 객체를 전달받는 경우 객체 내부의 변수명을
+	#{변수명} 과 같이 입력해 쿼리문을 완성시킵니다.
+	현재 코드에서 BoardVO에는
+	bno, title, content, writer, regdate, updatedate
+	라는 6개의 멤버변수가 존재하는데
+	변수명을 그대로 적어주기만 하면 알아서 맞는 자료가 전달됩니다. -->
+		INSERT INTO
+			ictboard (title, content, writer)
+				VALUES
+					 (#{title}, #{content}, #{writer})
+	</insert>
+	
+	<select id="read" resultType="org.ict.domain.BoardVO">
+		SELECT * FROM ictboard WHERE bno = #{bno}
+	</select>
+	
+	<delete id="delete">
+		DELETE FROM ictboard WHERE bno = #{bno}
+	</delete>	
+	
+	<update id="update">
+		UPDATE ictboard
+			SET
+		title = #{title},
+		content = #{content},
+		updatedate = now()
+			WHERE
+		bno = #{bno}
+	</update>
+	
+	<sql id="search">
+		<!-- 동적쿼리 부분 -->	
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">
+				and (title like CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="searchType == 'c'.toString()">
+				and (content like CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="searchType == 'w'.toString()">
+				and (writer like CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="searchType == 'tc'.toString()">
+				and (title like CONCAT('%', #{keyword}, '%')
+						OR
+					 content like CONCAT('%', #{keyword}, '%')
+					)
+			</if>
+			<if test="searchType == 'cw'.toString()">
+				and (content like CONCAT('%', #{keyword}, '%')
+						OR
+					 writer like CONCAT('%', #{keyword}, '%')
+					)
+			</if>
+			<if test="searchType == 'tcw'.toString()">
+				and (title like CONCAT('%', #{keyword}, '%')
+						OR
+					 content like CONCAT('%', #{keyword}, '%')
+					 	OR
+					 writer like CONCAT('%', #{keyword}, '%')
+					)
+			</if>
+		
+		</if>
+
+	</sql>
+	
+	
+	
+	<select id="listPage" resultType="org.ict.domain.BoardVO">
+		<!-- 아래 <![CDATA[ 는 닫는부분인 ]]> 사이의 모든 문자를
+		쿼리문으로만 인식하고 태그요소로 인식하지 않게 함. -->
+		<![CDATA[
+			SELECT bno, title, content, writer, regdate, updatedate, replycount
+				FROM ictboard
+				WHERE bno > 0
+		]]>				
+			<include refid="search"></include>
+			
+		<![CDATA[				
+			ORDER BY bno DESC
+			limit #{pageStart}, #{number}
+		]]>
+	</select>
+	
+	<select id="countPageNum" resultType="int">
+		<![CDATA[
+			SELECT COUNT(bno) FROM ictboard WHERE bno > 0
+		]]>
+		<include refid="search"></include>
+	</select>
+	
+	<update id="updateReplyCount">
+		UPDATE ictboard
+			SET
+		replycount = replycount + #{amount}
+			WHERE
+		bno = #{bno}
+	</update>
+	
+	<select id="getMaxBno" resultType="long">
+		SELECT MAX(bno) FROM ictboard
+	</select>
+
+
+</mapper>

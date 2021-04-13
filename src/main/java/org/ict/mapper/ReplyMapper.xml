@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 1~4번 라인은 xml 스키마 설정으로 굳이 외울 필요 없음. -->
+
+<mapper namespace="org.ict.mapper.ReplyMapper">
+<!-- mapper 태그 내의 namespace 속성에 연결할 인터페이스 이름을
+적어주면, 해당 인터페이스 내부의 메서드를 여기에 구현할 수 있음 -->
+
+	<select id="getList" 
+			resultType="org.ict.domain.ReplyVO">
+		SELECT * FROM ictreply
+			WHERE bno = #{bno}
+			ORDER BY rno DESC
+	</select>
+	
+	<insert id="create">
+		INSERT INTO ictreply(bno, replytext, replyer)
+			VALUES (#{bno}, #{replytext}, #{replyer})
+	</insert>
+	
+	<update id="update">
+		UPDATE ictreply
+			SET
+		replytext=#{replytext}, updatedate=now()
+		WHERE rno = #{rno}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM ictreply
+		WHERE rno = #{rno}
+	</delete>	
+	
+	<select id="getBno" resultType="long">
+		SELECT bno FROM ictreply
+			WHERE rno = #{rno}
+	</select>
+	
+	<delete id="deleteAll">
+		DELETE FROM ictreply
+			WHERE bno = #{bno}
+	</delete>
+	
+	<select id="getListPage" resultType="org.ict.domain.ReplyVO">
+		SELECT * FROM ictreply
+			WHERE bno = #{bno}
+			ORDER BY rno DESC
+			LIMIT #{cri.pageStart}, #{cri.number}
+	</select>
+	
+	<select id="count" resultType="int">
+		SELECT count(bno) from ictreply
+			WHERE bno = #{bno}
+	</select>
+	
+	
+</mapper>

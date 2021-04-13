@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 1~4번 라인은 xml 스키마 설정으로 굳이 외울 필요 없음. -->
+
+<mapper namespace="org.ict.mapper.UserMapper">
+
+	<select id="login" resultType="org.ict.domain.UserVO">
+		SELECT uid, upw, uname
+			FROM ictuser
+			WHERE uid = #{uid}
+			AND upw = #{upw}
+	</select>
+	
+	<insert id="joinMember">
+		INSERT INTO ictuser(uid, upw, uname)
+			VALUES (#{uid}, #{upw}, #{uname})
+	</insert>
+	
+	<select id="getUserInfo" resultType="org.ict.domain.UserVO">
+		SELECT * FROM ictuser 
+			WHERE uid = #{uid}
+	</select>
+	
+	<update id="keepLogin">
+		UPDATE ictuser
+			SET sessionKey = #{sessionId},
+			    sessionLimit = #{next}
+			WHERE uid = #{uid}
+	</update>
+	
+	
+	<select id="checkUserWithSessionKey" resultType="org.ict.domain.UserVO">
+		SELECT * FROM ictuser
+			WHERE sessionKey = #{value}
+			AND sessionLimit > now()
+	</select>
+	
+	
+	
+	
+</mapper>
