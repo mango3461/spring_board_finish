@@ -22,4 +22,9 @@
 	<delete id="deleteAll">
 		DELETE FROM ictimage WHERE bno = #{bno}
 	</delete>
+	
+	<select id="getOldFiles" resultType="org.ict.domain.BoardAttachVO">
+		SELECT * FROM ictimage 
+		WHERE uploadpath = DATE_FORMAT(now() - interval 1 day, '%Y\%m\%d')
+	</select>
 </mapper>
